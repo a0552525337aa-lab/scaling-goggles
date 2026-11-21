@@ -84,7 +84,7 @@
       border: 0;
       border-radius: 11px;
       padding: 11px 15px;
-      color: white;
+      color: #fff;
       background: #7c3aed;
       cursor: pointer;
     }
@@ -106,6 +106,10 @@
     button:disabled {
       opacity: .6;
       cursor: wait;
+    }
+
+    [hidden] {
+      display: none !important;
     }
 
     #micStatus {
@@ -146,12 +150,6 @@
       overflow-wrap: anywhere;
     }
 
-    .message strong {
-      display: block;
-      margin-bottom: 4px;
-      color: #c4b5fd;
-    }
-
     .message time {
       display: block;
       margin-top: 5px;
@@ -173,7 +171,7 @@
       border-radius: 11px;
       outline: none;
       background: #11111b;
-      color: white;
+      color: #fff;
     }
 
     input::placeholder {
@@ -227,8 +225,8 @@
           id="muteButton"
           class="secondary"
           type="button"
-          hidden
           aria-pressed="false"
+          hidden
         >
           كتم المايك
         </button>
@@ -269,7 +267,7 @@
       </form>
 
       <p class="hint">
-        ملاحظة: هذه دردشة تجريبية على هذا الجهاز فقط، ولا تُرسل الرسائل إلى مستخدمين آخرين.
+        ملاحظة: الرسائل تظهر في هذه الصفحة على جهازك فقط، ولا تصل لمستخدمين آخرين.
         المايك يطلب إذن المتصفح، لكنه لا ينشئ بثًا صوتيًا مباشرًا.
       </p>
     </section>
@@ -279,4 +277,11 @@
     const chatForm = document.getElementById("chatForm");
     const messageInput = document.getElementById("messageInput");
     const messages = document.getElementById("messages");
-    const emptyMessage = document.getElementById("emptyMessage
+    const emptyMessage = document.getElementById("emptyMessage");
+
+    const micButton = document.getElementById("micButton");
+    const muteButton = document.getElementById("muteButton");
+    const stopMicButton = document.getElementById("stopMicButton");
+    const micStatus = document.getElementById("micStatus");
+
+    let micStream
