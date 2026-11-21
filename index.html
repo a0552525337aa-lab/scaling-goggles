@@ -7,28 +7,23 @@
   <title>وَنَس | دردشة ومايك</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       min-height: 100vh;
-      background:
-        radial-gradient(ellipse at top, #39205f 0, transparent 45%),
-        #11111b;
+      background: #11111b;
       color: #fff;
       font-family: system-ui, sans-serif;
     }
 
     main {
-      width: min(100% - 28px, 760px);
+      width: min(760px, calc(100% - 28px));
       margin: 24px auto;
     }
 
-    header,
-    .panel {
-      border: 1px solid #ffffff18;
+    header, .panel {
+      border: 1px solid #ffffff20;
       border-radius: 18px;
       background: #191923;
     }
@@ -42,13 +37,10 @@
       margin-bottom: 14px;
     }
 
-    h1 {
-      margin: 0;
-      font-size: 22px;
-    }
+    h1 { margin: 0; font-size: 22px; }
+    h2 { margin: 18px 0 12px; font-size: 18px; }
 
-    .subtitle,
-    .hint {
+    .subtitle, .hint {
       color: #aaa8b8;
       font-size: 13px;
     }
@@ -59,12 +51,9 @@
       background: #30233f;
       color: #d8b4fe;
       font-size: 12px;
-      white-space: nowrap;
     }
 
-    .panel {
-      padding: 18px;
-    }
+    .panel { padding: 18px; }
 
     .mic-row {
       display: flex;
@@ -72,55 +61,28 @@
       flex-wrap: wrap;
       gap: 10px;
       padding-bottom: 16px;
-      border-bottom: 1px solid #ffffff16;
+      border-bottom: 1px solid #ffffff20;
     }
 
-    button,
-    input {
-      font: inherit;
-    }
+    button, input { font: inherit; }
 
     button {
       border: 0;
       border-radius: 11px;
       padding: 11px 15px;
-      color: #fff;
+      color: white;
       background: #7c3aed;
       cursor: pointer;
     }
 
-    button:hover {
-      filter: brightness(1.12);
-    }
-
-    button:focus-visible,
-    input:focus-visible {
-      outline: 3px solid #c4b5fd;
-      outline-offset: 2px;
-    }
-
-    button.secondary {
-      background: #34313e;
-    }
-
-    button:disabled {
-      opacity: .6;
-      cursor: wait;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
+    button.secondary { background: #34313e; }
+    button:disabled { opacity: .6; cursor: wait; }
+    [hidden] { display: none !important; }
 
     #micStatus {
       color: #c4c1d0;
       font-size: 13px;
       line-height: 1.6;
-    }
-
-    h2 {
-      margin: 18px 0 12px;
-      font-size: 18px;
     }
 
     #messages {
@@ -129,6 +91,7 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
+      align-items: flex-start;
       gap: 10px;
       padding: 12px;
       border-radius: 12px;
@@ -136,6 +99,7 @@
     }
 
     .empty {
+      align-self: center;
       margin: auto;
       color: #9693a5;
       text-align: center;
@@ -143,11 +107,11 @@
 
     .message {
       max-width: 85%;
-      align-self: flex-start;
       padding: 10px 12px;
       border-radius: 12px 12px 12px 3px;
       background: #282435;
       overflow-wrap: anywhere;
+      white-space: pre-wrap;
     }
 
     .message time {
@@ -167,16 +131,13 @@
       flex: 1;
       min-width: 0;
       padding: 12px;
-      border: 1px solid #ffffff20;
+      border: 1px solid #ffffff30;
       border-radius: 11px;
-      outline: none;
       background: #11111b;
       color: #fff;
     }
 
-    input::placeholder {
-      color: #898697;
-    }
+    input::placeholder { color: #aaa8b8; }
 
     .hint {
       margin: 12px 2px 0;
@@ -184,25 +145,9 @@
     }
 
     @media (max-width: 480px) {
-      main {
-        margin: 12px auto;
-      }
-
-      header {
-        padding: 14px;
-      }
-
-      .panel {
-        padding: 13px;
-      }
-
-      #messages {
-        height: 45vh;
-      }
-
-      form button {
-        padding-inline: 13px;
-      }
+      main { margin: 12px auto; }
+      header, .panel { padding: 14px; }
+      #messages { height: 45vh; }
     }
   </style>
 </head>
@@ -217,29 +162,15 @@
       <span class="badge">نسخة تجريبية</span>
     </header>
 
-    <section class="panel" aria-label="الدردشة والمايكروفون">
+    <section class="panel">
       <div class="mic-row">
         <button id="micButton" type="button">🎤 تشغيل المايك</button>
-
-        <button
-          id="muteButton"
-          class="secondary"
-          type="button"
-          aria-pressed="false"
-          hidden
-        >
+        <button id="muteButton" class="secondary" type="button" hidden>
           كتم المايك
         </button>
-
-        <button
-          id="stopMicButton"
-          class="secondary"
-          type="button"
-          hidden
-        >
+        <button id="stopMicButton" class="secondary" type="button" hidden>
           إيقاف المايك
         </button>
-
         <div id="micStatus" role="status" aria-live="polite">
           المايكروفون متوقف.
         </div>
@@ -267,8 +198,7 @@
       </form>
 
       <p class="hint">
-        ملاحظة: الرسائل تظهر في هذه الصفحة على جهازك فقط، ولا تصل لمستخدمين آخرين.
-        المايك يطلب إذن المتصفح، لكنه لا ينشئ بثًا صوتيًا مباشرًا.
+        الدردشة في هذه النسخة محلية على جهازك فقط، ولا تصل الرسائل إلى مستخدمين آخرين.
       </p>
     </section>
   </main>
@@ -279,9 +209,23 @@
     const messages = document.getElementById("messages");
     const emptyMessage = document.getElementById("emptyMessage");
 
-    const micButton = document.getElementById("micButton");
-    const muteButton = document.getElementById("muteButton");
-    const stopMicButton = document.getElementById("stopMicButton");
-    const micStatus = document.getElementById("micStatus");
+    chatForm.addEventListener("submit", function (event) {
+      event.preventDefault();
 
-    let micStream
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      if (emptyMessage && emptyMessage.isConnected) {
+        emptyMessage.remove();
+      }
+
+      const bubble = document.createElement("div");
+      bubble.className = "message";
+
+      const messageText = document.createElement("div");
+      messageText.textContent = text;
+
+      const time = document.createElement("time");
+      time.textContent = new Date().toLocaleTimeString("ar", {
+        hour: "2-digit",
+        minute:
