@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <meta name="theme-color" content="#0c1717" />
+  <meta name="description" content="ALMOGHANI AI — محادثة ذكية وإجابات دقيقة باللغة العربية." />
+  <title>ALMOGHANI AI — المحادثة</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♛</text></svg>">
+  <style>
+    :root {
+      --bg: #0c1717;
+      --bg-card: #122222;
+      --bg-sidebar: #0a1212;
+      --text: #e8f0f0;
+      --text-muted: #8aa0a0;
+      --accent: #00d4aa;
+      --accent-hover: #00b894;
+      --border: #1e3333;
+      --user-bg: #1a3a3a;
+      --ai-bg: #152828;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+    }
+    .sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 0;
+      transition: transform 0.3s;
+    }
+    .logo {
+      padding: 1rem 1.5rem;
+      font-size: 1.3rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .logo span { color: var(--accent); }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text);
+      padding: 0.9rem 1.5rem;
+      text-align: right;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .nav-btn:hover, .nav-btn.active { background: rgba(0,212,170,0.1); color: var(--accent); }
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .status { color: var(--accent); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; }
+    .status::before { content: ''; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .message {
+      max-width: 80%;
+      padding: 0.9rem 1.1rem;
+      border-radius: 1.2rem;
+      line-height: 1.6;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+    .message.user {
+      align-self: flex-start;
+      background: var(--user-bg);
+      border-bottom-left-radius: 0.3rem;
+    }
+    .message.ai {
+      align-self: flex-end;
+      background: var(--ai-bg);
+      border-bottom-right-radius: 0.3rem;
+    }
+    .welcome {
+      text-align: center;
+      margin: auto;
+      max-width: 500px;
+    }
+    .welcome h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .welcome p { color: var(--text-muted); margin-bottom: 1.5rem; }
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .suggestion {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 0.6rem 1rem;
+      border-radius: 2rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .suggestion:hover { border-color: var(--accent); color: var(--accent); }
+    .input-area {
+      padding: 1rem 1.5rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .input-box {
+      display: flex;
+      gap: 0.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 0.4rem;
+      align-items: flex-end;
+    }
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      padding: 0.7rem 1rem;
+      font-size: 1rem;
+      resize: none;
+      max-height: 150px;
+      outline: none;
+      font-family: inherit;
+    }
+    .send-btn {
+      background: var(--accent);
+      border: none;
+      color: #0c1717;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .send-btn:hover { background: var(--accent-hover); }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .settings-modal, .history-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .settings-modal.open, .history-modal.open { display: flex; }
+    .modal-content {
+      background: var(--bg-card);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 480px;
+      border: 1px solid var(--border);
+    }
+    .modal-content h2 { margin-bottom: 1rem; }
+    label { display: block; margin: 0.8rem 0 0.3rem; color: var(--text-muted); font-size: 0.9rem; }
+    input, select {
+      width: 100%;
+      padding: 0.7rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      color: var(--text);
+      font-size: 1rem;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #0c1717;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 1rem;
+      width: 100%;
+    }
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      .sidebar { position: fixed; height: 100%; z-index: 50; transform: translateX(100%); }
+      .sidebar.open { transform: translateX(0); }
+      .mobile-toggle { display: block; }
+      .message { max-width: 90%; }
+    }
+    .typing { opacity: 0.7; font-style: italic; }
+    .error { color: var(--danger); font-size: 0.85rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">♛ ALMOGHANI <span>AI</span></div>
+    <button class="nav-btn active" onclick="showChat()"><span>💬</span> الدردشة</button>
+    <button class="nav-btn" onclick="showHistory()"><span>🕒</span> السجل</button>
+    <button class="nav-btn" onclick="openSettings()"><span>⚙️</span> الإعدادات</button>
+    <button class="nav-btn" onclick="alert('تطبيق دردشة ذكي مبني بأدوات مجانية. أدخل مفتاح API من Groq أو Gemini في الإعدادات.')"><span>ℹ️</span> حول التطبيق</button>
+  </aside>
+
+  <main class="main">
+    <header class="header">
+      <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <div>
+        <strong>ALMOGHANI AI</strong>
+        <div class="status">الذكاء الاصطناعي متصل</div>
+      </div>
+    </header>
+
+    <div class="chat-container" id="chat">
+      <div class="welcome" id="welcome">
+        <h1>مرحبًا بك في<br><span style="color:var(--accent)">ALMOGHANI AI</span></h1>
+        <p>محادثة ذكية .. إجابات دقيقة<br>كيف يمكنني مساعدتك اليوم؟</p>
+        <div class="suggestions">
+          <div class="suggestion" onclick="useSuggestion('اكتب لي قصيدة قصيرة عن الرياض')">أفكار وإبداع</div>
+          <div class="suggestion" onclick="useSuggestion('ما هي أحدث أخبار التقنية؟')">أخبار وتقنية</div>
+          <div class="suggestion" onclick="useSuggestion('ساعدني في كتابة كود بايثون بسيط')">مساعدة برمجية</div>
+          <div class="suggestion" onclick="useSuggestion('ترجم هذا النص إلى الإنجليزية: مرحبا كيف حالك')">ترجمة نصوص</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-box">
+        <textarea id="input" placeholder="اكتب رسالتك هنا ..." rows="1"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+      </div>
+      <div class="error" id="error"></div>
+    </div>
+  </main>
+
+  <!-- Settings Modal -->
+  <div class="settings-modal" id="settingsModal">
+    <div class="modal-content">
+      <h2>الإعدادات</h2>
+      <label>مزود الذكاء الاصطناعي</label>
+      <select id="provider">
+        <option value="groq">Groq (سريع ومجاني)</option>
+        <option value="gemini">Google Gemini (مجاني)</option>
+        <option value="openrouter">OpenRouter (نماذج مجانية)</option>
+      </select>
+      <label>مفتاح API</label>
+      <input type="password" id="apiKey" placeholder="أدخل مفتاح API الخاص بك" />
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;">
+        احصل على مفتاح مجاني من:<br>
+        Groq: <a href="https://console.groq.com" target="_blank" style="color:var(--accent)">console.groq.com</a><br>
+        Gemini: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com</a>
+      </p>
+      <button class="btn-primary" onclick="saveSettings()">حفظ</button>
+      <button class="btn-primary" style="background:#333; margin-top:0.5rem;" onclick="closeSettings()">إغلاق</button>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div class="history-modal" id="historyModal">
+    <div class="modal-content">
+      <h2>سجل المحادثات</h2>
+      <div id="historyList" style="max-height:300px; overflow-y:auto;"></div>
+      <button class="btn-primary" onclick="closeHistory()">إغلاق</button>
+    </div>
+  </div>
+
+  <script>
+    let messages = JSON.parse(localStorage.getItem('messages') || '[]');
+    let settings = JSON.parse(localStorage.getItem('settings') || '{"provider":"groq","apiKey":""}');
+
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('sendBtn');
+    const errorEl = document.getElementById('error');
+    const welcome = document.getElementById('welcome');
+
+    function renderMessages() {
+      chat.innerHTML = '';
+      if (messages.length === 0) {
+        chat.appendChild(welcome);
+        return;
+      }
+      messages.forEach(m => {
+        const div = document.createElement('div');
+        div.className = `message ${m.role}`;
+        div.textContent = m.content;
+        chat.appendChild(div);
+      });
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function useSuggestion(text) {
+      input.value = text;
+      sendMessage();
+    }
+
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+      if (!settings.apiKey) {
+        errorEl.textContent = 'الرجاء إدخال مفتاح API في الإعدادات أولاً';
+        openSettings();
+        return;
+      }
+      errorEl.textContent = '';
+
+      messages.push({ role: 'user', content: text });
+      input.value = '';
+      renderMessages();
+
+      // Typing indicator
+      const typing = document.createElement('div');
+      typing.className = 'message ai typing';
+      typing.textContent = 'يكتب...';
+      chat.appendChild(typing);
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const reply = await callAI(text);
+        messages.push({ role: 'ai', content: reply });
+        localStorage.setItem('messages', JSON.stringify(messages));
+      } catch (e) {
+        messages.push({ role: 'ai', content: 'عذراً، حدث خطأ: ' + e.message });
+      }
+      renderMessages();
+    }
+
+    async function callAI(userText) {
+      const history = messages.slice(-10).map(m => ({
+        role: m.role === 'ai' ? 'assistant' : 'user',
+        content: m.content
+      }));
+
+      if (settings.provider === 'groq') {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${settings.apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              { role: 'system', content: 'أنت مساعد ذكي عربي اسمه ALMOGHANI AI. أجب دائماً باللغة العربية بشكل واضح ومفيد.' },
+              ...history,
+              { role: 'user', content: userText }
+            ],
+            temperature: 0.7
+          })
+        });
+        if (!res.ok) throw new Error((await res.json()).error?.message || 'خطأ في الاتصال');
+        const data = await res.json();
+        return data.choices[0].message.content;
+      }
+
+      if (settings.provider === 'gemini') {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${settings.apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: 'أنت مساعد ذكي عربي. ' + userText }] }]
+          })
+        });
+        if (!res.ok) throw new Error('خطأ في Gemini');
+        const data = await res.json();
+        return data.candidates[0].content.parts[0].text;
+      }
+
+      // OpenRouter free
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${settings.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'openrouter/free',
+          messages: [
+            { role: 'system', content: 'أنت مساعد ذكي عربي اسمه ALMOGHANI AI.' },
+            ...history,
+            { role: 'user', content: userText }
+          ]
+        })
+      });
+      if (!res.ok) throw new Error('خطأ في OpenRouter');
+      const data = await res.json();
+      return data.choices[0].message.content;
+    }
+
+    function openSettings() {
+      document.getElementById('provider').value = settings.provider;
+      document.getElementById('apiKey').value = settings.apiKey;
+      document.getElementById('settingsModal').classList.add('open');
+    }
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.remove('open');
+    }
+    function saveSettings() {
+      settings.provider = document.getElementById('provider').value;
+      settings.apiKey = document.getElementById('apiKey').value.trim();
+      localStorage.setItem('settings', JSON.stringify(settings));
+      closeSettings();
+      errorEl.textContent = settings.apiKey ? 'تم حفظ الإعدادات' : '';
+    }
+
+    function showHistory() {
+      const list = document.getElementById('historyList');
+      list.innerHTML = messages.length ? messages.map(m => `<div style="margin:0.5rem 0; padding:0.5rem; background:#0c1717; border-radius:0.5rem;"><strong>${m.role === 'user' ? 'أنت' : 'AI'}:</strong> ${m.content.substring(0,100)}...</div>`).join('') : '<p>لا يوجد سجل</p>';
+      document.getElementById('historyModal').classList.add('open');
+    }
+    function closeHistory() {
+      document.getElementById('historyModal').classList.remove('open');
+    }
+    function showChat() {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    input.addEventListener('input', () => {
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 150) + 'px';
+    });
+
+    renderMessages();
+    if (!settings.apiKey) setTimeout(openSettings, 500);
+  </script>
+</body>
+</html>
